@@ -9,6 +9,8 @@ import { OrbitControls } from 'OrbitControls';
         previousMousePosition: { x: 0, y: 0 },
         rotationSpeed: 0.005,
     };
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
 
     // 2. 씬 초기화
     function initScene() {
@@ -62,9 +64,9 @@ import { OrbitControls } from 'OrbitControls';
 
                 action.loop = THREE.LoopOnce; // 한 번만 실행
                 action.clampWhenFinished = true; // 마지막 프레임에서 멈춤
-                // action.paused = false; // 초기 상태에서 멈춤
-                action.paused = false; // 멈춘 상태 해제
-                action.play(); // 애니메이션 실행
+                action.paused = false; // 초기 상태에서 멈춤
+                // action.paused = false; // 멈춘 상태 해제
+                // action.play(); // 애니메이션 실행
             }
 
             // 최초 렌더링
@@ -79,6 +81,34 @@ import { OrbitControls } from 'OrbitControls';
         controls.enableDamping = true; // 부드러운 회전을 위한 damping 활성화
         controls.dampingFactor = 0.25;
     }
+
+    // 7. 마우스 클릭 핸들러
+    function setupClickHandler() {
+        window.addEventListener("click", (event) => {
+            // 마우스 위치를 정규화된 디바이스 좌표(-1 ~ 1)로 변환
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+            // Raycaster 설정
+            raycaster.setFromCamera(mouse, camera);
+    
+            // Raycaster가 교차하는 객체 확인
+            const intersects = raycaster.intersectObjects(scene.children, true); // true: 자식 포함
+            if (intersects.length > 0) {
+                const clickedObject = intersects[0].object;
+    
+                // 클릭된 객체가 모델이면 애니메이션 실행
+                if (mixer) {
+                    mixer.stopAllAction(); // 이전 애니메이션 정지
+                    const clip = mixer.clipAction(mixer._actions[0]._clip); // 첫 번째 애니메이션 클립
+                    clip.reset(); // 초기 상태로 재설정
+                    clip.paused = false; // 정지 해제
+                    clip.play(); // 애니메이션 실행
+                }
+            }
+        });
+    }
+    
 
     // 8. 창 크기 변경 이벤트
     function setupResizeHandler() {
@@ -119,6 +149,7 @@ import { OrbitControls } from 'OrbitControls';
         initLights();
         loadModel();
         setupResizeHandler();
+        setupClickHandler();
         setOrbitControls();
         animate();
     }
