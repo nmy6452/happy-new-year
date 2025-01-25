@@ -11,6 +11,7 @@ import { OrbitControls } from 'OrbitControls';
     };
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
+    const modal = document.getElementById('myModal'); // HTML 모달
 
     // 2. 씬 초기화
     function initScene() {
@@ -65,8 +66,7 @@ import { OrbitControls } from 'OrbitControls';
                 action.loop = THREE.LoopOnce; // 한 번만 실행
                 action.clampWhenFinished = true; // 마지막 프레임에서 멈춤
                 action.paused = false; // 초기 상태에서 멈춤
-                // action.paused = false; // 멈춘 상태 해제
-                // action.play(); // 애니메이션 실행
+                mixer   .addEventListener('finished', onAnimationFinished); 
             }
 
             // 최초 렌더링
@@ -74,19 +74,35 @@ import { OrbitControls } from 'OrbitControls';
         });
     }
 
-        // 6. 꽃 모델 로드 및 최초 렌더링
-        function loadFlowerModel() {
-            loader = new GLTFLoader();
-            loader.load("spring_rose_garden/scene.gltf", (gltf) => {
-                scene.add(gltf.scene);
+    // 6. 애니메이션 종료 후 HTML 모달 표시
+    function onAnimationFinished() {
+        console.log("애니메이션 종료!");
+        showModal(); // 애니메이션 종료 후 모달 창 띄우기
+    }
 
-                
-                gltf.scene.position.set(-5, 0, -1)
-    
-                // 최초 렌더링
-                renderer.render(scene, camera);
-            });
-        }
+    // 7. 모달 창 표시
+    function showModal() {
+        modal.style.display = "block"; // 모달을 화면에 표시
+    }
+
+    // 10. 모달 닫기
+    function closeModal() {
+        modal.style.display = "none"; // 모달 닫기
+    }
+
+    // 6. 꽃 모델 로드 및 최초 렌더링
+    function loadFlowerModel() {
+        loader = new GLTFLoader();
+        loader.load("spring_rose_garden/scene.gltf", (gltf) => {
+            scene.add(gltf.scene);
+
+            
+            gltf.scene.position.set(-5, 0, -1)
+
+            // 최초 렌더링
+            renderer.render(scene, camera);
+        });
+    }
 
     // 7. 마우스 컨트롤
     function setOrbitControls(){

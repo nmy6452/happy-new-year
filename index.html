@@ -1,11 +1,45 @@
 <!DOCTYPE html>
+<style>
+  .modal {
+    display: none; /* 기본적으로 모달은 숨김 */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding-top: 60px;
+  }
+  
+  .modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+  
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  </style>
 <html>
   <head>
     <meta charset="UTF-8">
     <title>Three.js</title>
   </head>
   <body>
-    <button onclick="startAnimation()">애니메이션 시작</button>
     <canvas id="canvas"></canvas>
   </body>
   <footer>
@@ -14,6 +48,15 @@
     </p>
   </footer>
 </html>
+
+<!-- 모달 창 HTML 코드 -->
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <span id="closeModal" class="close" onclick="closeModal()">&times;</span>
+    <h2>애니메이션이 끝났습니다!</h2>
+    <p>애니메이션 종료 후 표시된 모달입니다.</p>
+  </div>
+</div>
 
 <script type="importmap">
       {
