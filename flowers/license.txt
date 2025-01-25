@@ -1,0 +1,11 @@
+Model Information:
+* title:	Flowers
+* source:	https://sketchfab.com/3d-models/flowers-7dccda2703094aa0a9e5ecb7940db598
+* author:	martinb (https://sketchfab.com/martin4)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Flowers" (https://sketchfab.com/3d-models/flowers-7dccda2703094aa0a9e5ecb7940db598) by martinb (https://sketchfab.com/martin4) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

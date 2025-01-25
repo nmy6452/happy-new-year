@@ -26,7 +26,7 @@ import { OrbitControls } from 'OrbitControls';
             0.1,
             1000
         );
-        camera.position.set(0, 1, 5);
+        camera.position.set(-1, 3, 3);
     }
 
     // 4. 렌더러 초기화
@@ -47,8 +47,8 @@ import { OrbitControls } from 'OrbitControls';
         scene.add(pointLight, ambientLight);
     }
 
-    // 6. 모델 로드 및 최초 렌더링
-    function loadModel() {
+    // 6. 우체통 모델 로드 및 최초 렌더링
+    function loadPostBoxModel() {
         loader = new GLTFLoader();
         loader.load("postbox/scene.gltf", (gltf) => {
             scene.add(gltf.scene);
@@ -73,6 +73,20 @@ import { OrbitControls } from 'OrbitControls';
             renderer.render(scene, camera);
         });
     }
+
+        // 6. 꽃 모델 로드 및 최초 렌더링
+        function loadFlowerModel() {
+            loader = new GLTFLoader();
+            loader.load("spring_rose_garden/scene.gltf", (gltf) => {
+                scene.add(gltf.scene);
+
+                
+                gltf.scene.position.set(-5, 0, -1)
+    
+                // 최초 렌더링
+                renderer.render(scene, camera);
+            });
+        }
 
     // 7. 마우스 컨트롤
     function setOrbitControls(){
@@ -147,7 +161,8 @@ import { OrbitControls } from 'OrbitControls';
         initCamera();
         initRenderer();
         initLights();
-        loadModel();
+        loadPostBoxModel();
+        loadFlowerModel();
         setupResizeHandler();
         setupClickHandler();
         setOrbitControls();

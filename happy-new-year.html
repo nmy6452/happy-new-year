@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Three.js</title>
+  </head>
+  <body>
+    <button onclick="startAnimation()">애니메이션 시작</button>
+    <canvas id="canvas"></canvas>
+  </body>
+  <footer>
+    <p>
+        This work is based on "Game Ready Animated Mailbox / Postbox" (https://sketchfab.com/3d-models/game-ready-animated-mailbox-postbox-582c0ce1ffee41179ab981146ae0ff87) by OmegaRedZA (https://sketchfab.com/OmegaRedZA) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+    </p>
+  </footer>
+</html>
+
+<script type="importmap">
+      {
+  	"imports": {
+      "three": "https://unpkg.com/three@0.138.3/build/three.module.js",
+      "GLTFLoader":
+      "https://unpkg.com/three@0.141.0/examples/jsm/loaders/GLTFLoader.js",
+      "OrbitControls": "https://unpkg.com/three@0.141.0/examples/jsm/controls/OrbitControls.js"
+    }
+  }
+</script>
+
+<script type="module" src="./main.js"></script>
