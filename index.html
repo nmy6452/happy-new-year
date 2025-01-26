@@ -66,13 +66,25 @@
 </html>
 
 <!-- 모달 창 HTML 코드 -->
-<div id="myModal" class="modal">
-  <div class="modal-content">
-    <span id="closeModal" class="close">&times;</span>
+<div id="contentModal" class="modal">
+  <div class="modal-content" id="contentModelContent">
+    <span id="closeContentModal" class="close">&times;</span>
     <h2 id="messageTitle">Title</h2>
     <p id="messageContent">content</p>
     <div>
       <button onclick="window.location.href = window.location.origin + window.location.pathname;">나도 새해인사 보내기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 모달 창 HTML 코드 -->
+<div id="inputModal" class="modal">
+  <div class="modal-content" id="inputModelContent">
+    <span id="closeInputModal" class="close">&times;</span>
+    <input type="text" id="inputTitle"/>
+    <textarea id="inputContent"></textarea>
+    <div>
+      <button onclick="console.log('클립보드에 복사되었습니다.')">새해인사 공유하기</button>
     </div>
   </div>
 </div>

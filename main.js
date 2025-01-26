@@ -83,36 +83,6 @@ import { OrbitControls } from 'OrbitControls';
 
     // 7. 모달 창 표시
     function showModal() {
-        // modal.style.display = "block"; // 모달을 화면에 표시
-
-        // JavaScript 코드
-        const modal = document.getElementById("myModal");
-        const modalContent = document.querySelector(".modal-content");
-        const closeModalBtn = document.getElementById("closeModal");
-
-        setTimeout(() => {
-            modal.style.display = "block"; // 모달 오버레이 보이기
-            modalContent.style.top = "50%"; // 애니메이션으로 중앙으로 이동
-        }, 500); // 약간의 지연을 줘야 transition이 적용됨
-        
-        // 모달 닫기
-        closeModalBtn.addEventListener("click", closeModal);
-        modal.addEventListener("click", (event) => {
-        if (event.target === modal) {
-            closeModal();
-        }
-        });
-
-        // 모달 닫기 함수
-        function closeModal() {
-            modalContent.style.top = "-100%"; // 다시 위로 이동
-            setTimeout(() => {
-                modal.style.display = "none"; // 모달 완전히 숨김
-                isAnimation = false
-            }, 500); // 애니메이션 지속 시간과 동일하게 설정
-        }
-
-
 
         const urlParams = new URLSearchParams(window.location.search);
         urlParams.forEach((value, key) => {
@@ -120,15 +90,84 @@ import { OrbitControls } from 'OrbitControls';
         });
         const title = urlParams.get("title");
         const content = urlParams.get("content");
-        console.log("title", title);
-        console.log("contest", content);
-        $("#messageTitle").text(title);
-        $("#messageContent").text(content);
+
+        //보여줄 내용이 있는경우 보여주고 없는 경우 입력 
+        if(title && content){
+            showContentModal(title, content);
+        }
+        else{
+            showInputModal();
+        }
+
     }
 
-    // 10. 모달 닫기
-    function closeModal() {
-        modal.style.display = "none"; // 모달 닫기
+    // 7. 내용 모달 창 표시
+    function showContentModal(title, content) {
+        // modal.style.display = "block"; // 모달을 화면에 표시
+
+        // JavaScript 코드
+        const modal = document.getElementById("contentModal");
+        const modalContent = document.querySelectorAll(".modal-content");
+        const closeModalBtn = document.getElementById("closeContentModal");
+
+        $("#messageTitle").text(title);
+        $("#messageContent").text(content);
+
+        setTimeout(() => {
+            modal.style.display = "block"; // 모달 오버레이 보이기
+            modalContent[0].style.top = "50%"; // 애니메이션으로 중앙으로 이동
+        }, 500); // 약간의 지연을 줘야 transition이 적용됨
+        
+        // 모달 닫기
+        closeModalBtn.addEventListener("click", closeContentModal);
+        modal.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            closeContentModal();
+        }
+        });
+
+        // 모달 닫기 함수
+        function closeContentModal() {
+            modalContent[0].style.top = "-100%"; // 다시 위로 이동
+            setTimeout(() => {
+                modal.style.display = "none"; // 모달 완전히 숨김
+                isAnimation = false
+            }, 500); // 애니메이션 지속 시간과 동일하게 설정
+        }
+    }
+
+    // 7. 내용 모달 창 표시
+    function showInputModal() {
+        // modal.style.display = "block"; // 모달을 화면에 표시
+
+        // JavaScript 코드
+        const modal = document.getElementById("inputModal");
+        const modalContent = document.querySelectorAll(".modal-content");
+        const closeModalBtn = document.getElementById("closeInputModal");
+
+        console.log(modalContent);
+
+        setTimeout(() => {
+            modal.style.display = "block"; // 모달 오버레이 보이기
+            modalContent[1].style.top = "50%"; // 애니메이션으로 중앙으로 이동
+        }, 500); // 약간의 지연을 줘야 transition이 적용됨
+        
+        // 모달 닫기
+        closeModalBtn.addEventListener("click", closeInputModal);
+        modal.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            closeInputModal();
+        }
+        });
+
+        // 모달 닫기 함수
+        function closeInputModal() {
+            modalContent[1].style.top = "-100%"; // 다시 위로 이동
+            setTimeout(() => {
+                modal.style.display = "none"; // 모달 완전히 숨김
+                isAnimation = false
+            }, 500); // 애니메이션 지속 시간과 동일하게 설정
+        }
     }
 
     // 6. 꽃 모델 로드 및 최초 렌더링
