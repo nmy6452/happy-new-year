@@ -78,13 +78,42 @@ import { OrbitControls } from 'OrbitControls';
 
     // 6. 애니메이션 종료 후 HTML 모달 표시
     function onAnimationFinished() {
-        isAnimation = false
         showModal(); // 애니메이션 종료 후 모달 창 띄우기
     }
 
     // 7. 모달 창 표시
     function showModal() {
-        modal.style.display = "block"; // 모달을 화면에 표시
+        // modal.style.display = "block"; // 모달을 화면에 표시
+
+        // JavaScript 코드
+        const modal = document.getElementById("myModal");
+        const modalContent = document.querySelector(".modal-content");
+        const closeModalBtn = document.getElementById("closeModal");
+
+        setTimeout(() => {
+            modal.style.display = "block"; // 모달 오버레이 보이기
+            modalContent.style.top = "50%"; // 애니메이션으로 중앙으로 이동
+        }, 500); // 약간의 지연을 줘야 transition이 적용됨
+        
+        // 모달 닫기
+        closeModalBtn.addEventListener("click", closeModal);
+        modal.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            closeModal();
+        }
+        });
+
+        // 모달 닫기 함수
+        function closeModal() {
+            modalContent.style.top = "-100%"; // 다시 위로 이동
+            setTimeout(() => {
+                modal.style.display = "none"; // 모달 완전히 숨김
+                isAnimation = false
+            }, 500); // 애니메이션 지속 시간과 동일하게 설정
+        }
+
+
+
         const urlParams = new URLSearchParams(window.location.search);
         urlParams.forEach((value, key) => {
             console.log(`Key: ${key}, Value: ${value}`);
@@ -93,8 +122,8 @@ import { OrbitControls } from 'OrbitControls';
         const content = urlParams.get("content");
         console.log("title", title);
         console.log("contest", content);
-        document.getElementById("messageTitle").innerText = title;
-        document.getElementById("messageContent").innerText = content;
+        $("#messageTitle").text(title);
+        $("#messageContent").text(content);
     }
 
     // 10. 모달 닫기
