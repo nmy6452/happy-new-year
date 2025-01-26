@@ -12,6 +12,7 @@ import { OrbitControls } from 'OrbitControls';
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     const modal = document.getElementById('myModal'); // HTML 모달
+    let isAnimation = false;
 
     // 2. 씬 초기화
     function initScene() {
@@ -56,6 +57,7 @@ import { OrbitControls } from 'OrbitControls';
 
             //모델 180도 회전
             gltf.scene.rotation.y = Math.PI;
+            console.log(gltf);
 
             // 애니메이션 설정
             if (gltf.animations.length > 0) {
@@ -66,7 +68,7 @@ import { OrbitControls } from 'OrbitControls';
                 action.loop = THREE.LoopOnce; // 한 번만 실행
                 action.clampWhenFinished = true; // 마지막 프레임에서 멈춤
                 action.paused = false; // 초기 상태에서 멈춤
-                mixer   .addEventListener('finished', onAnimationFinished); 
+                mixer.addEventListener('finished', onAnimationFinished); 
             }
 
             // 최초 렌더링
@@ -76,13 +78,23 @@ import { OrbitControls } from 'OrbitControls';
 
     // 6. 애니메이션 종료 후 HTML 모달 표시
     function onAnimationFinished() {
-        console.log("애니메이션 종료!");
+        isAnimation = false
         showModal(); // 애니메이션 종료 후 모달 창 띄우기
     }
 
     // 7. 모달 창 표시
     function showModal() {
         modal.style.display = "block"; // 모달을 화면에 표시
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.forEach((value, key) => {
+            console.log(`Key: ${key}, Value: ${value}`);
+        });
+        const title = urlParams.get("title");
+        const content = urlParams.get("content");
+        console.log("title", title);
+        console.log("contest", content);
+        document.getElementById("messageTitle").innerText = title;
+        document.getElementById("messageContent").innerText = content;
     }
 
     // 10. 모달 닫기
@@ -127,13 +139,17 @@ import { OrbitControls } from 'OrbitControls';
             if (intersects.length > 0) {
                 const clickedObject = intersects[0].object;
     
+                console.log(clickedObject);
                 // 클릭된 객체가 모델이면 애니메이션 실행
-                if (mixer) {
-                    mixer.stopAllAction(); // 이전 애니메이션 정지
-                    const clip = mixer.clipAction(mixer._actions[0]._clip); // 첫 번째 애니메이션 클립
-                    clip.reset(); // 초기 상태로 재설정
-                    clip.paused = false; // 정지 해제
-                    clip.play(); // 애니메이션 실행
+                if(isAnimation == false){
+                    isAnimation = true;
+                    if (mixer) {
+                        mixer.stopAllAction(); // 이전 애니메이션 정지
+                        const clip = mixer.clipAction(mixer._actions[0]._clip); // 첫 번째 애니메이션 클립
+                        clip.reset(); // 초기 상태로 재설정
+                        clip.paused = false; // 정지 해제
+                        clip.play(); // 애니메이션 실행
+                    }
                 }
             }
         });
