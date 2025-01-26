@@ -3,7 +3,7 @@ import { GLTFLoader } from "GLTFLoader";
 import { OrbitControls } from 'OrbitControls';
 
     // 1. 전역 변수 선언
-    let scene, camera, renderer, loader, mixer;
+    let scene, camera, renderer, loader, mixer, postbox, latter;
     const controls = {
         isDragging: false,
         previousMousePosition: { x: 0, y: 0 },
@@ -13,6 +13,12 @@ import { OrbitControls } from 'OrbitControls';
     const mouse = new THREE.Vector2();
     const modal = document.getElementById('myModal'); // HTML 모달
     let isAnimation = false;
+
+
+    //애니메이션 관련 전역 변수 선언
+    let moveZ = 0; // Track x position
+    let rotateCompleted = false;
+    let moveCamera = false;
 
     // 2. 씬 초기화
     function initScene() {
@@ -54,10 +60,10 @@ import { OrbitControls } from 'OrbitControls';
         loader = new GLTFLoader();
         loader.load("postbox/scene.gltf", (gltf) => {
             scene.add(gltf.scene);
+            postbox = gltf.scene;
 
             //모델 180도 회전
             gltf.scene.rotation.y = Math.PI;
-            console.log(gltf);
 
             // 애니메이션 설정
             if (gltf.animations.length > 0) {
@@ -78,6 +84,7 @@ import { OrbitControls } from 'OrbitControls';
 
     // 6. 애니메이션 종료 후 HTML 모달 표시
     function onAnimationFinished() {
+        animateLatter();
         showModal(); // 애니메이션 종료 후 모달 창 띄우기
     }
 
@@ -268,26 +275,35 @@ import { OrbitControls } from 'OrbitControls';
         setOrbitControls();
         animate();
     }
+    
+        // Animation loop
+        function animateLatter() {
+          requestAnimationFrame(animateLatter);
 
-    /**
-     * 애니메이션 실행 함수
-    */
-    function startAnimation() {
-        if (action) {
-            action.reset(); // 애니메이션 상태 초기화
-            action.paused = false; // 멈춘 상태 해제
-            action.play(); // 애니메이션 실행
+          // Step 1: Move cube along x-axis
+          if (moveZ < 1) {
+            postbox.position.z += 0.005; // Move 0.05 units per frame
+            moveZ += 0.005;
+          } 
+          // Step 2: Rotate cube 180 degrees
+          else if (!rotateCompleted) {
+            postbox.rotation.z += Math.PI / 90; // Rotate 2 degrees per frame
+            if (postbox.rotation.z >= Math.PI) {
+                postbox.rotation.z = Math.PI; // Ensure exact rotation
+              rotateCompleted = true;
+              moveCamera = true;
+            }
+          } 
+          // Step 3: Move camera along -z direction
+          else if (moveCamera && camera.position.z > 5) {
+            camera.position.z -= 0.05; // Move 0.05 units per frame
+          }
+    
+          renderer.render(scene, camera);
         }
-    }
-
-    /**
-     * 애니메이션 정지 함수
-    */
-    function stopAnimation() {
-        if (action) {
-            action.stop(); // 애니메이션 정지
-        }
-    }
+    
+        // Start animation
+        // animateLatter();
 
     // 실행
     main();
