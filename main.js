@@ -191,6 +191,27 @@ import { OrbitControls } from 'OrbitControls';
         });
     }
 
+    
+    // 6. 꽃 모델 로드 및 최초 렌더링
+    function loadLetterModel() {
+        loader = new GLTFLoader();
+        loader.load("letter_1/scene.gltf", (gltf) => {
+            scene.add(gltf.scene);
+            latter = gltf.scene;
+            
+            latter.scale.set(0.2,0.2,0.2)
+            latter.position.set(0,1.1,0)
+            latter.rotation.z = THREE.MathUtils.degToRad(90);
+
+            
+            // gltf.scene.position.set(-5, 0, -1)
+
+            // 최초 렌더링
+            renderer.render(scene, camera);
+        });
+    }
+
+
     // 7. 마우스 컨트롤
     function setOrbitControls(){
         // OrbitControls를 추가합니다.
@@ -270,6 +291,7 @@ import { OrbitControls } from 'OrbitControls';
         initLights();
         loadPostBoxModel();
         loadFlowerModel();
+        loadLetterModel();
         setupResizeHandler();
         setupClickHandler();
         setOrbitControls();
@@ -281,17 +303,17 @@ import { OrbitControls } from 'OrbitControls';
           requestAnimationFrame(animateLatter);
 
           // Step 1: Move cube along x-axis
-          if (moveZ < 1) {
-            postbox.position.z += 0.005; // Move 0.05 units per frame
+          if (moveZ < 0.5) {
+            latter.position.z += 0.005; // Move 0.05 units per frame
             moveZ += 0.005;
           } 
           // Step 2: Rotate cube 180 degrees
           else if (!rotateCompleted) {
-            postbox.rotation.z += Math.PI / 90; // Rotate 2 degrees per frame
-            if (postbox.rotation.z >= Math.PI) {
-                postbox.rotation.z = Math.PI; // Ensure exact rotation
-              rotateCompleted = true;
-              moveCamera = true;
+            latter.rotation.z += Math.PI / 90; // Rotate 2 degrees per frame
+            if (latter.rotation.z >= THREE.MathUtils.degToRad(270)) {
+                latter.rotation.z = THREE.MathUtils.degToRad(270); // Ensure exact rotation
+                rotateCompleted = true;
+                moveCamera = true;
             }
           } 
           // Step 3: Move camera along -z direction
