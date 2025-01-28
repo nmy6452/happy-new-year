@@ -80,6 +80,7 @@
   button {
     width: 100%;
     padding: 10px 15px;
+    margin-bottom: 2px;
     font-size: 16px;
     font-weight: bold;
     color: white;
@@ -137,51 +138,84 @@
     <input type="text" placeholder="수신자" id="inputTo"/>
     <textarea id="inputContent"></textarea>
     <div>
-      <button onclick="copy()">새해인사 공유하기</button>
+      <button id="shareBtn">새해인사 공유하기</button>
+      <button onclick="copy()">URL 복사하기</button>
     </div>
   </div>
 </div>
 
 <script>
+  share();
+
+  function getShareUrl(){
+     // 현재 페이지의 기본 URL 가져오기
+    let url = window.location.origin + window.location.pathname;
+
+    if($("#inputTitle").val() ==  null || $("#inputTitle").val() == undefined || $("#inputTitle").val() == ""){
+        alert("제목을 입력해주세요");
+        document.getElementById("inputTitle").focus();
+        return;
+    }
+
+    if($("#inputTo").val() ==  null || $("#inputTo").val() == undefined || $("#inputTo").val() == ""){
+        alert("수신자를 입력해주세요");
+        document.getElementById("inputTo").focus();
+        return;
+    }
+
+    if($("#inputContent").val() ==  null || $("#inputContent").val() == undefined || $("#inputContent").val() == ""){
+        alert("내용이 비어 있습니다. 내용을 입력해주세요");
+        document.getElementById("inputContent").focus();
+        return;
+    }
+
+    // 제목과 내용을 가져오기
+    const title = encodeURIComponent($("#inputTitle").val()); // URL 인코딩
+    const recipient = encodeURIComponent($("#inputTo").val()); // URL 인코딩
+    const content = encodeURIComponent($("#inputContent").val()); // URL 인코딩
+
+    // URL에 쿼리 파라미터 추가
+    url += `?title=${title}&recipient=${recipient}&content=${content}`;
+    return url; 
+  }
+
+
   function copy(){
-      // 현재 페이지의 기본 URL 가져오기
-  let url = window.location.origin + window.location.pathname;
+    let url = getShareUrl();
+      if(url){
+        // 클립보드에 복사
+        navigator.clipboard.writeText()
+          .then(() => {
+            alert("URL이 클립보드에 복사되었습니다!");
+          })
+          .catch((err) => {
+            console.error("클립보드 복사 실패:", err);
+            alert("URL 복사에 실패했습니다.");
+          });
+      }
+    }
 
-  if($("#inputTitle").val() ==  null || $("#inputTitle").val() == undefined || $("#inputTitle").val() == ""){
-      alert("제목을 입력해주세요");
-      document.getElementById("inputTitle").focus();
-      return;
-  }
-
-  if($("#inputTo").val() ==  null || $("#inputTo").val() == undefined || $("#inputTo").val() == ""){
-      alert("수신자를 입력해주세요");
-      document.getElementById("inputTo").focus();
-      return;
-  }
-
-  if($("#inputContent").val() ==  null || $("#inputContent").val() == undefined || $("#inputContent").val() == ""){
-      alert("내용이 비어 있습니다. 내용을 입력해주세요");
-      document.getElementById("inputContent").focus();
-      return;
-  }
-
-  // 제목과 내용을 가져오기
-  const title = encodeURIComponent($("#inputTitle").val()); // URL 인코딩
-  const recipient = encodeURIComponent($("#inputTo").val()); // URL 인코딩
-  const content = encodeURIComponent($("#inputContent").val()); // URL 인코딩
-
-  // URL에 쿼리 파라미터 추가
-  url += `?title=${title}&recipient=${recipient}&content=${content}`;
-
-  // 클립보드에 복사
-  navigator.clipboard.writeText(url)
-    .then(() => {
-      alert("URL이 클립보드에 복사되었습니다!");
-    })
-    .catch((err) => {
-      console.error("클립보드 복사 실패:", err);
-      alert("URL 복사에 실패했습니다.");
-    });
+  function share(){
+      document.getElementById('shareBtn').addEventListener('click', async () => {
+        
+        let url = getShareUrl();
+        if(url){
+            if (navigator.share) {
+              try {
+                await navigator.share({
+                  title: '편지 공유하기', // 공유 제목
+                  // text: '이 링크를 확인해보세요:',   // 공유 메시지
+                  url: getShareUrl()        // 공유할 URL
+                });
+                console.log('공유 성공!');
+              } catch (err) {
+                console.error('공유 취소 또는 오류:', err);
+              }
+            } else {
+              alert('이 브라우저는 공유 API를 지원하지 않습니다.');
+            }
+        }
+      });
   }
 </script>
 
