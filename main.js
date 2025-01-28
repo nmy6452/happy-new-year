@@ -233,7 +233,7 @@ import { TextGeometry } from 'TextGeometry';
 
         setTimeout(() => {
             modal.style.display = "block"; // 모달 오버레이 보이기
-            modalContent[0].style.top = "30%"; // 애니메이션으로 중앙으로 이동
+            modalContent[0].style.top = "10vh"; // 애니메이션으로 중앙으로 이동
         }, 3000); // 약간의 지연을 줘야 transition이 적용됨
         
         // 모달 닫기
@@ -267,7 +267,7 @@ import { TextGeometry } from 'TextGeometry';
 
         setTimeout(() => {
             modal.style.display = "block"; // 모달 오버레이 보이기
-            modalContent[1].style.top = "30%"; // 애니메이션으로 중앙으로 이동
+            modalContent[1].style.top = "10vh"; // 애니메이션으로 중앙으로 이동
         }, 3000); // 약간의 지연을 줘야 transition이 적용됨
         
         // 모달 닫기

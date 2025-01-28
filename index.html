@@ -1,119 +1,187 @@
 <!DOCTYPE html>
 <style>
-  /* 기본 스타일 */
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-  }
+/* 기본 스타일 */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
 
-  /* 모달 배경 (오버레이) */
-  .modal {
-      display: none; /* 초기에는 숨김 */
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-  }
+/* 모달 배경 (오버레이) */
+.modal {
+  display: none; /* 초기에는 숨김 */
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
 
-  /* 모달 내용 */
+/* 모달 내용 */
+.modal-content {
+  position: absolute;
+  top: -100%; /* 시작 위치 (화면 위쪽) */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%; /* 모바일에 적합한 기본값 */
+  max-width: 600px;
+  /* min-height: 60vh; */
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: top 0.5s ease; /* 부드러운 애니메이션 */
+}
+
+/* 닫기 버튼 */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+}
+
+/* input 스타일 */
+input[type="text"],
+textarea {
+  width: 95%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1.5rem; /* 기본 폰트 크기 */
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  border-color: #007BFF;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+  outline: none;
+}
+
+textarea {
+  min-height: 30vh;
+  resize: none; /* 크기 조절 금지 */
+}
+
+/* button 스타일 */
+button {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 2px;
+  font-size: 1.5rem; /* 기본 버튼 크기 */
+  font-weight: bold;
+  color: white;
+  background-color: #007BFF;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+button:active {
+  background-color: #004494;
+  transform: translateY(0);
+}
+
+/* 미디어 쿼리 (반응형 스타일링) */
+@media (max-width: 768px) {
   .modal-content {
-    position: absolute;
-    top: -100%; /* 시작 위치 (화면 위쪽) */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    max-width: 600px;
-    background-color: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    transition: top 0.5s ease; /* 부드러운 애니메이션 */
+    width: 95%; /* 더 작은 화면에서 가로 폭 조정 */
+    padding: 15px; /* 여백 감소 */
   }
 
-  /* 닫기 버튼 */
-  .close {
-    color: #aaa;
-    float: right;
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .close:hover, .close:focus {
-    color: black;
-    text-decoration: none;
-  }
-
-    /* input 스타일 */
-    input[type="text"],
+  input[type="text"],
   textarea {
-    
-    width: 95%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-size: 1.2rem; /* 작은 화면에서는 폰트 크기 축소 */
   }
 
-  input[type="text"]:focus,
-  textarea:focus {
-    border-color: #007BFF;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
-    outline: none;
-  }
-
-  textarea {
-    height: 100px;
-    resize: none; /* 크기 조절 금지 */
-  }
-
-  /* button 스타일 */
   button {
-    width: 100%;
-    padding: 10px 15px;
-    margin-bottom: 2px;
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
-    background-color: #007BFF;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 1.2rem; /* 버튼 크기 축소 */
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    width: 95%;
+    padding: 10px; /* 여백 더 감소 */
   }
 
-  button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
+  input[type="text"],
+  textarea {
+    font-size: 1rem; /* 더 작은 폰트 크기 */
   }
 
-  button:active {
-    background-color: #004494;
-    transform: translateY(0);
+  button {
+    font-size: 1rem; /* 버튼도 축소 */
+    padding: 8px 10px;
   }
+}
+
+/* Footer 기본 스타일 */
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 1rem;
+  z-index: 1000; /* 다른 요소 위에 표시되도록 설정 */
+}
+
+/* 작은 화면에서 폰트 크기 및 패딩 조정 */
+@media (max-width: 768px) {
+  footer {
+    font-size: 0.9rem;
+    padding: 8px 0;
+  }
+}
+
+/* 링크 스타일 */
+footer a {
+  color: #ffcc00; /* 링크 색상 */
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
 </style>
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Three.js</title>
+    <title>행복한 한가위 되세요</title>
   </head>
   <body>
     <canvas id="canvas"></canvas>
   </body>
   <footer>
-    <p>
-        This work is based on "Game Ready Animated Mailbox / Postbox" (https://sketchfab.com/3d-models/game-ready-animated-mailbox-postbox-582c0ce1ffee41179ab981146ae0ff87) by OmegaRedZA (https://sketchfab.com/OmegaRedZA) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
-    </p>
+    <p>This work is based on <a href="https://sketchfab.com/3d-models/letter-1-2503769b8d694a3481c5167a2c977261" target="_blank">"letter (1)"</a> by <a href="https://sketchfab.com/tech.service.allwe" target="_blank">tech.service.allwe</a> licensed under <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">CC-BY-4.0</a></p>
+    <p>This work is based on <a href="https://sketchfab.com/3d-models/game-ready-animated-mailbox-postbox-582c0ce1ffee41179ab981146ae0ff87" target="_blank">"Game Ready Animated Mailbox / Postbox"</a> by <a href="https://sketchfab.com/OmegaRedZA" target="_blank">OmegaRedZA</a> licensed under <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">CC-BY-4.0</a></p>
+    <p>This work is based on <a href="https://sketchfab.com/3d-models/grass-vegitation-mix-81317d6bbe0244acad3de44046d077df" target="_blank">"Grass Vegitation Mix"</a> by <a href="https://sketchfab.com/Ujjwal-Chauhan" target="_blank">UJJWAL CHAUHAN</a> licensed under <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">CC-BY-4.0</a></p>
   </footer>
 </html>
 
@@ -212,7 +280,7 @@
                 console.error('공유 취소 또는 오류:', err);
               }
             } else {
-              alert('이 브라우저는 공유 API를 지원하지 않습니다.');
+              alert('이 브라우저는 공유 API를 지원하지 않습니다.\nURL을 복사해 공유할 수 있습니다.');
             }
         }
       });
