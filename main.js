@@ -185,17 +185,34 @@ import { TextGeometry } from 'TextGeometry';
                 bevelSegments: 5, // 경사면 세그먼트
             });
 
+            const textYear = new TextGeometry("2025", {
+                font: font, // 로드한 글꼴 사용
+                size: 0.1,    // 텍스트 크기
+                height: 0.02, // 텍스트 깊이
+                curveSegments: 5, // 곡선 세그먼트 (매끄러움)
+                bevelEnabled: true, // 경사면 활성화
+                bevelThickness: 0.03, // 경사면 두께
+                bevelSize: 0.01, // 경사면 크기
+                bevelSegments: 5, // 경사면 세그먼트
+            });
+
             // 텍스트 재질
-            const textMaterial = new THREE.MeshStandardMaterial({ color: 0xF6FC59 }); // 노란색 텍스트
+            const textMaterial = new THREE.MeshStandardMaterial({ color: 0xF4F482 }); // HappyNewYear
+            const textToMaterial = new THREE.MeshStandardMaterial({ color: 0xF4AFAB }); // To
+            const textYearMaterial = new THREE.MeshStandardMaterial({ color: 0xF4EEA9 }); // 2025            
+            
             const textHappyNewYearMesh = new THREE.Mesh(textHappyNewYear, textMaterial);
-            const textToMesh = new THREE.Mesh(textTo, textMaterial);
+            const textToMesh = new THREE.Mesh(textTo, textToMaterial);
+            const textYearMesh = new THREE.Mesh(textYear, textYearMaterial);
 
             // 텍스트 위치 조정
             textHappyNewYearMesh.position.set(-0.6, 0.2, -0.2); // 화면 중앙으로 이동
             textToMesh.position.set(0.3, 0.3, -0.1); // 화면 중앙으로 이동
+            textYearMesh.position.set(-0.7, 0.32, -0.2)
 
             scene.add(textHappyNewYearMesh); // 씬에 추가
             scene.add(textToMesh); // 씬에 추가
+            scene.add(textYearMesh); // 씬에 추가
         });
     }
 
