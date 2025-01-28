@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from "GLTFLoader";
+import { FontLoader } from "FontLoader";
 import { OrbitControls } from 'OrbitControls';
+import { TextGeometry } from 'TextGeometry';
 //TODO 카메라 위치 고정 및 시작시 화면 설정 이동 제한설정
 //TODO 애니매이션 종료 이후 이벤트 발생
 //TODO 이쁜 편지지 제작
@@ -16,6 +18,7 @@ import { OrbitControls } from 'OrbitControls';
     };
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
+    let action = null;
     const modal = document.getElementById('myModal'); // HTML 모달
     let isAnimation = false;
     let i = 0;
@@ -25,6 +28,7 @@ import { OrbitControls } from 'OrbitControls';
     let moveZ = 0; // Track x position
     let rotateCompleted = false;
     let moveCamera = false;
+    let isAnimationFInished = false;
 
     // 원형 텍스처 생성
     const circleTexture = createCircleTexture();
@@ -95,7 +99,7 @@ import { OrbitControls } from 'OrbitControls';
         
         // 바닥의 위치 조정
         ground.rotation.x = -Math.PI / 2; // 바닥을 수평으로 회전
-        ground.position.y = 0; // 바닥 높이 설정 (기준 높이 0)
+        ground.position.y = -0.5; // 바닥 높이 설정 (기준 높이 0)
         
         // 씬에 바닥 추가
         scene.add(ground);
@@ -105,7 +109,7 @@ import { OrbitControls } from 'OrbitControls';
             scene.add(gltf.scene);
 
             
-            // gltf.scene.position.set(-5, 0, -1)
+            gltf.scene.position.set(0, -0.5, 0)
 
             // 최초 렌더링
             renderer.render(scene, camera);
@@ -117,17 +121,19 @@ import { OrbitControls } from 'OrbitControls';
     function loadPostBoxModel() {
         loader = new GLTFLoader();
         loader.load("postbox/scene.gltf", (gltf) => {
-            scene.add(gltf.scene);
+            
             postbox = gltf.scene;
+            scene.add(postbox);
 
             //모델 180도 회전
-            gltf.scene.rotation.y = Math.PI;
+            postbox.rotation.y = Math.PI;
+            postbox.position.set(0, -0.5, 0);
 
             // 애니메이션 설정
             if (gltf.animations.length > 0) {
-                mixer = new THREE.AnimationMixer(gltf.scene);
+                mixer = new THREE.AnimationMixer(postbox);
                 const clip = gltf.animations[0]; // 첫 번째 애니메이션 클립 사용
-                const action = mixer.clipAction(clip);
+                action = mixer.clipAction(clip);
 
                 action.loop = THREE.LoopOnce; // 한 번만 실행
                 action.clampWhenFinished = true; // 마지막 프레임에서 멈춤
@@ -146,13 +152,57 @@ import { OrbitControls } from 'OrbitControls';
         showModal();
     }
 
+    function textLoder(){
+        // 글꼴 로드 및 3D 텍스트 생성
+        loader = new FontLoader();
+        loader.load('fonts/Do Hyeon_Regular.json', (font) => {
+            const textHappyNewYear = new TextGeometry('Happy\n New Year', {
+                font: font, // 로드한 글꼴 사용
+                size: 0.1,    // 텍스트 크기
+                height: 0.01, // 텍스트 깊이
+                curveSegments: 5, // 곡선 세그먼트 (매끄러움)
+                bevelEnabled: true, // 경사면 활성화
+                bevelThickness: 0.03, // 경사면 두께
+                bevelSize: 0.01, // 경사면 크기
+                bevelSegments: 5, // 경사면 세그먼트
+            });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const recipient = urlParams.get("recipient");
+            let textToContent = "소중한\n 당신에게"
+            if(recipient){
+                textToContent = "TO. "+recipient;
+            }
+
+            const textTo = new TextGeometry(textToContent, {
+                font: font, // 로드한 글꼴 사용
+                size: 0.1,    // 텍스트 크기
+                height: 0.02, // 텍스트 깊이
+                curveSegments: 5, // 곡선 세그먼트 (매끄러움)
+                bevelEnabled: true, // 경사면 활성화
+                bevelThickness: 0.03, // 경사면 두께
+                bevelSize: 0.01, // 경사면 크기
+                bevelSegments: 5, // 경사면 세그먼트
+            });
+
+            // 텍스트 재질
+            const textMaterial = new THREE.MeshStandardMaterial({ color: 0xF6FC59 }); // 노란색 텍스트
+            const textHappyNewYearMesh = new THREE.Mesh(textHappyNewYear, textMaterial);
+            const textToMesh = new THREE.Mesh(textTo, textMaterial);
+
+            // 텍스트 위치 조정
+            textHappyNewYearMesh.position.set(-0.6, 0.2, -0.2); // 화면 중앙으로 이동
+            textToMesh.position.set(0.3, 0.3, -0.1); // 화면 중앙으로 이동
+
+            scene.add(textHappyNewYearMesh); // 씬에 추가
+            scene.add(textToMesh); // 씬에 추가
+        });
+    }
+
     // 7. 모달 창 표시
     function showModal() {
 
         const urlParams = new URLSearchParams(window.location.search);
-        urlParams.forEach((value, key) => {
-            console.log(`Key: ${key}, Value: ${value}`);
-        });
         const title = urlParams.get("title");
         const recipient = urlParams.get("recipient");
         const content = urlParams.get("content");
@@ -191,11 +241,13 @@ import { OrbitControls } from 'OrbitControls';
         modal.addEventListener("click", (event) => {
         if (event.target === modal) {
             closeContentModal();
+            reset();
         }
         });
 
         // 모달 닫기 함수
         function closeContentModal() {
+            reset();
             modalContent[0].style.top = "-100%"; // 다시 위로 이동
             setTimeout(() => {
                 modal.style.display = "none"; // 모달 완전히 숨김
@@ -213,8 +265,6 @@ import { OrbitControls } from 'OrbitControls';
         const modalContent = document.querySelectorAll(".modal-content");
         const closeModalBtn = document.getElementById("closeInputModal");
 
-        console.log(modalContent);
-
         setTimeout(() => {
             modal.style.display = "block"; // 모달 오버레이 보이기
             modalContent[1].style.top = "30%"; // 애니메이션으로 중앙으로 이동
@@ -230,26 +280,13 @@ import { OrbitControls } from 'OrbitControls';
 
         // 모달 닫기 함수
         function closeInputModal() {
+            reset();
             modalContent[1].style.top = "-100%"; // 다시 위로 이동
             setTimeout(() => {
                 modal.style.display = "none"; // 모달 완전히 숨김
                 // isAnimation = false
             }, 500); // 애니메이션 지속 시간과 동일하게 설정
         }
-    }
-
-    // 6. 꽃 모델 로드 및 최초 렌더링
-    function loadFlowerModel() {
-        loader = new GLTFLoader();
-        loader.load("grass_vegitation_mix/scene.gltf", (gltf) => {
-            scene.add(gltf.scene);
-
-            
-            // gltf.scene.position.set(-5, 0, -1)
-
-            // 최초 렌더링
-            renderer.render(scene, camera);
-        });
     }
 
     // 원형 텍스처 생성 함수
@@ -321,7 +358,7 @@ function createCircleTexture() {
             latter = gltf.scene;
             
             latter.scale.set(0.2,0.2,0.2)
-            latter.position.set(0,1.1,0)
+            latter.position.set(0,0.6,0)
             latter.rotation.z = THREE.MathUtils.degToRad(90);
 
             
@@ -354,17 +391,19 @@ function createCircleTexture() {
             // Raycaster가 교차하는 객체 확인
             const intersects = raycaster.intersectObjects(scene.children, true); // true: 자식 포함
             if (intersects.length > 0) {
-                const clickedObject = intersects[0].object;
+                for (let i = 0; i < intersects.length; i++) {
+                    const clickedObject = intersects[i].object;
     
-                // 클릭된 객체가 우체통이고 애니메이션이 실행된적이 없다며 애니메이션 실행
-                if(isAnimation == false && clickedObject.userData.name == "Box002_01 - Default_0"){
-                    isAnimation = true;
-                    if (mixer) {
-                        mixer.stopAllAction(); // 이전 애니메이션 정지
-                        const clip = mixer.clipAction(mixer._actions[0]._clip); // 첫 번째 애니메이션 클립
-                        clip.reset(); // 초기 상태로 재설정
-                        clip.paused = false; // 정지 해제
-                        clip.play(); // 애니메이션 실행
+                    // 클릭된 객체가 우체통이고 애니메이션이 실행된적이 없다며 애니메이션 실행
+                    if(isAnimation == false && clickedObject.userData.name == "Box002_01 - Default_0"){
+                        isAnimation = true;
+                        if (mixer) {
+                            mixer.stopAllAction(); // 이전 애니메이션 정지
+                            const clip = mixer.clipAction(mixer._actions[0]._clip); // 첫 번째 애니메이션 클립
+                            clip.reset(); // 초기 상태로 재설정
+                            clip.paused = false; // 정지 해제
+                            clip.play(); // 애니메이션 실행
+                        }
                     }
                 }
             }
@@ -403,6 +442,36 @@ function createCircleTexture() {
         render();
     }
 
+    function reset(){
+
+        //편지 위치 리셋
+        latter.scale.set(0.2,0.2,0.2)
+        latter.position.set(0,0.6,0)
+        latter.rotation.x = THREE.MathUtils.degToRad(0);
+        latter.rotation.y = THREE.MathUtils.degToRad(0);
+        latter.rotation.z = THREE.MathUtils.degToRad(90);
+
+        //애니메이션 리셋
+        moveZ = 0; // Track x position
+        rotateCompleted = false;
+        moveCamera = false;
+        isAnimationFInished = false;
+
+        //우체통 애니메이션 리셋
+        // mixer = new THREE.AnimationMixer(postbox);
+        // const clip = gltf.animations[0]; // 첫 번째 애니메이션 클립 사용
+        // action = mixer.clipAction(clip);
+
+        // action.loop = THREE.LoopOnce; // 한 번만 실행
+        // action.clampWhenFinished = true; // 마지막 프레임에서 멈춤
+        // action.paused = false; // 초기 상태에서 멈춤
+        // mixer.addEventListener('finished', onAnimationFinished); 
+
+        isAnimation = false;
+        action.reset(); // 애니메이션 리셋 (타임라인 초기화)
+        action.stop(); // 초기 상태에서 멈춤
+    }
+
     // 10. 초기화 및 실행
     function main() {
         initScene();
@@ -411,7 +480,7 @@ function createCircleTexture() {
         initLights();
         loadGround();
         loadPostBoxModel();
-        // loadFlowerModel();
+        textLoder();
         loadLetterModel();
         loadPointsMaterial();
         setupResizeHandler();
@@ -422,30 +491,33 @@ function createCircleTexture() {
     
         // Animation loop
         function animateLatter() {
-          requestAnimationFrame(animateLatter);
+            if(isAnimationFInished) return;
 
-          // Step 1: Move cube along x-axis
-          if (moveZ < 0.5) {
-            latter.position.z += 0.005; // Move 0.05 units per frame
-            moveZ += 0.005;
-          } 
-          // Step 2: Rotate cube 180 degrees
-          else if (!rotateCompleted) {
-            latter.rotation.z -= Math.PI / 90; // Rotate 2 degrees per frame
-            latter.rotation.y += Math.PI / 180; // Rotate 2 degrees per frame
+            requestAnimationFrame(animateLatter);
 
-            if (latter.rotation.z <= THREE.MathUtils.degToRad(-90)) {
-                latter.rotation.z = THREE.MathUtils.degToRad(-90); // Ensure exact rotation
-                rotateCompleted = true;
-                moveCamera = true;
-            }
-          } 
-          // Step 3: Move camera along -z direction
-          else if (moveCamera && camera.position.z > 5) {
-            camera.position.z -= 0.05; // Move 0.05 units per frame
-          }
+            // Step 1: Move cube along x-axis
+            if (moveZ < 0.5) {
+                latter.position.z += 0.005; // Move 0.05 units per frame
+                moveZ += 0.005;
+            } 
+            // Step 2: Rotate cube 180 degrees
+            else if (!rotateCompleted) {
+                latter.rotation.z -= Math.PI / 90; // Rotate 2 degrees per frame
+                latter.rotation.y += Math.PI / 180; // Rotate 2 degrees per frame
+
+                if (latter.rotation.z <= THREE.MathUtils.degToRad(-90)) {
+                    latter.rotation.z = THREE.MathUtils.degToRad(-90); // Ensure exact rotation
+                    rotateCompleted = true;
+                    moveCamera = true;
+                    isAnimationFInished = true;
+                }
+            } 
+            // Step 3: Move camera along -z direction
+            // else if (moveCamera && camera.position.z > 5) {
+                // camera.position.z -= 0.05; // Move 0.05 units per frame
+            // }
     
-          renderer.render(scene, camera);
+            renderer.render(scene, camera);
         }
     
         // Start animation
