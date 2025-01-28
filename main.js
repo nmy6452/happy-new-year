@@ -57,12 +57,12 @@ import { TextGeometry } from 'TextGeometry';
     // 3. 카메라 초기화
     function initCamera() {
         camera = new THREE.PerspectiveCamera(
-            45,
+            55,
             window.innerWidth / window.innerHeight,
-            0.1,
+            0.3,
             1000
         );
-        camera.position.set(-1, 3, 3);
+        camera.position.set(-0.3, 1, 3);
     }
 
     // 4. 렌더러 초기화
@@ -78,9 +78,9 @@ import { TextGeometry } from 'TextGeometry';
     // 5. 조명 설정
     function initLights() {
         const pointLight = new THREE.PointLight(0xffffff, 1);
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        // const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         pointLight.position.set(50, 50, 50);
-        scene.add(pointLight, ambientLight);
+        scene.add(pointLight);
     }
 
     // 6. 바닥 생성
