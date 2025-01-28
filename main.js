@@ -1,6 +1,11 @@
 import * as THREE from 'three';
 import { GLTFLoader } from "GLTFLoader";
 import { OrbitControls } from 'OrbitControls';
+//TODO 카메라 위치 고정 및 시작시 화면 설정 이동 제한설정
+//TODO 애니매이션 종료 이후 이벤트 발생
+//TODO 이쁜 편지지 제작
+//TODO 꽃 모델변경
+//TODO 클릭시 우체통을 클릭한 경우에만 이벤트 발생
 
     // 1. 전역 변수 선언
     let scene, camera, renderer, loader, mixer, postbox, latter;
@@ -13,6 +18,7 @@ import { OrbitControls } from 'OrbitControls';
     const mouse = new THREE.Vector2();
     const modal = document.getElementById('myModal'); // HTML 모달
     let isAnimation = false;
+    let i = 0;
 
 
     //애니메이션 관련 전역 변수 선언
@@ -20,6 +26,24 @@ import { OrbitControls } from 'OrbitControls';
     let rotateCompleted = false;
     let moveCamera = false;
 
+    // 원형 텍스처 생성
+    const circleTexture = createCircleTexture();
+
+    // 입자 재질 생성
+    const particleMaterial = new THREE.PointsMaterial({
+    color: 0xffcc00, // 반딧불 색상 (노란빛)
+    size: 0.001,
+    transparent: true,
+    map: circleTexture, // 원형 텍스처 적용
+    opacity: 0.8,
+    blending: THREE.AdditiveBlending, // 빛이 섞이는 효과
+    depthWrite: false,
+    });
+
+    // 입자 관련 번수
+    let particles = null;
+    const particleCount = 20; // 입자 개수
+    
     // 2. 씬 초기화
     function initScene() {
         scene = new THREE.Scene();
@@ -55,6 +79,40 @@ import { OrbitControls } from 'OrbitControls';
         scene.add(pointLight, ambientLight);
     }
 
+    // 6. 바닥 생성
+    function loadGround() {
+        // 바닥의 지오메트리 생성 (CircleGeometry 사용)
+        const groundGeometry = new THREE.CircleGeometry(1.34, 64); // 반지름 5, 세그먼트 64개로 부드러운 원
+        
+        // 흙색(갈색) 재질 생성
+        const groundMaterial = new THREE.MeshStandardMaterial({
+            color: 0x0A0502, // 흙색 (갈색, Hex 코드)
+            side: THREE.DoubleSide, // 양면 렌더링
+        });
+        
+        // 원형 바닥 메시 생성
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        
+        // 바닥의 위치 조정
+        ground.rotation.x = -Math.PI / 2; // 바닥을 수평으로 회전
+        ground.position.y = 0; // 바닥 높이 설정 (기준 높이 0)
+        
+        // 씬에 바닥 추가
+        scene.add(ground);
+
+        loader = new GLTFLoader();
+        loader.load("grass_vegitation_mix/scene.gltf", (gltf) => {
+            scene.add(gltf.scene);
+
+            
+            // gltf.scene.position.set(-5, 0, -1)
+
+            // 최초 렌더링
+            renderer.render(scene, camera);
+        });
+    }
+
+
     // 6. 우체통 모델 로드 및 최초 렌더링
     function loadPostBoxModel() {
         loader = new GLTFLoader();
@@ -85,7 +143,7 @@ import { OrbitControls } from 'OrbitControls';
     // 6. 애니메이션 종료 후 HTML 모달 표시
     function onAnimationFinished() {
         animateLatter();
-        showModal(); // 애니메이션 종료 후 모달 창 띄우기
+        showModal();
     }
 
     // 7. 모달 창 표시
@@ -96,11 +154,12 @@ import { OrbitControls } from 'OrbitControls';
             console.log(`Key: ${key}, Value: ${value}`);
         });
         const title = urlParams.get("title");
+        const recipient = urlParams.get("recipient");
         const content = urlParams.get("content");
 
         //보여줄 내용이 있는경우 보여주고 없는 경우 입력 
         if(title && content){
-            showContentModal(title, content);
+            showContentModal(title, content, recipient);
         }
         else{
             showInputModal();
@@ -109,7 +168,7 @@ import { OrbitControls } from 'OrbitControls';
     }
 
     // 7. 내용 모달 창 표시
-    function showContentModal(title, content) {
+    function showContentModal(title, content, recipient) {
         // modal.style.display = "block"; // 모달을 화면에 표시
 
         // JavaScript 코드
@@ -118,12 +177,14 @@ import { OrbitControls } from 'OrbitControls';
         const closeModalBtn = document.getElementById("closeContentModal");
 
         $("#messageTitle").text(title);
+        $("#messageRecipient").text("TO. "+recipient);
         $("#messageContent").text(content);
+        
 
         setTimeout(() => {
             modal.style.display = "block"; // 모달 오버레이 보이기
-            modalContent[0].style.top = "50%"; // 애니메이션으로 중앙으로 이동
-        }, 500); // 약간의 지연을 줘야 transition이 적용됨
+            modalContent[0].style.top = "30%"; // 애니메이션으로 중앙으로 이동
+        }, 3000); // 약간의 지연을 줘야 transition이 적용됨
         
         // 모달 닫기
         closeModalBtn.addEventListener("click", closeContentModal);
@@ -138,7 +199,7 @@ import { OrbitControls } from 'OrbitControls';
             modalContent[0].style.top = "-100%"; // 다시 위로 이동
             setTimeout(() => {
                 modal.style.display = "none"; // 모달 완전히 숨김
-                isAnimation = false
+                // isAnimation = false
             }, 500); // 애니메이션 지속 시간과 동일하게 설정
         }
     }
@@ -156,8 +217,8 @@ import { OrbitControls } from 'OrbitControls';
 
         setTimeout(() => {
             modal.style.display = "block"; // 모달 오버레이 보이기
-            modalContent[1].style.top = "50%"; // 애니메이션으로 중앙으로 이동
-        }, 500); // 약간의 지연을 줘야 transition이 적용됨
+            modalContent[1].style.top = "30%"; // 애니메이션으로 중앙으로 이동
+        }, 3000); // 약간의 지연을 줘야 transition이 적용됨
         
         // 모달 닫기
         closeModalBtn.addEventListener("click", closeInputModal);
@@ -172,7 +233,7 @@ import { OrbitControls } from 'OrbitControls';
             modalContent[1].style.top = "-100%"; // 다시 위로 이동
             setTimeout(() => {
                 modal.style.display = "none"; // 모달 완전히 숨김
-                isAnimation = false
+                // isAnimation = false
             }, 500); // 애니메이션 지속 시간과 동일하게 설정
         }
     }
@@ -180,19 +241,79 @@ import { OrbitControls } from 'OrbitControls';
     // 6. 꽃 모델 로드 및 최초 렌더링
     function loadFlowerModel() {
         loader = new GLTFLoader();
-        loader.load("spring_rose_garden/scene.gltf", (gltf) => {
+        loader.load("grass_vegitation_mix/scene.gltf", (gltf) => {
             scene.add(gltf.scene);
 
             
-            gltf.scene.position.set(-5, 0, -1)
+            // gltf.scene.position.set(-5, 0, -1)
 
             // 최초 렌더링
             renderer.render(scene, camera);
         });
     }
 
+    // 원형 텍스처 생성 함수
+function createCircleTexture() {
+    const size = 128; // 텍스처 크기
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+  
+    const ctx = canvas.getContext('2d');
+    const center = size / 2;
+    const radius = size / 2;
+  
+    // 원형 그리기
+    ctx.beginPath();
+    ctx.arc(center, center, radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'white'; // 텍스처의 알파 영역
+    ctx.fill();
+    return new THREE.CanvasTexture(canvas);
+  }
+
+    // 6. 반딧불이 효과
+    function loadPointsMaterial() {
+        // 반딧불 입자 시스템 생성
+        const particlesGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+
+        for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 5; // X 좌표
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 5; // Y 좌표
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 5; // Z 좌표
+        sizes[i] = Math.random() * 5 + 1; // 입자 크기
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        particles = new THREE.Points(particlesGeometry, particleMaterial);
+        scene.add(particles);
+
+        animateParticles();
+
+    }
+
+    // 애니메이션 효과
+    function animateParticles() {
+        requestAnimationFrame(animateParticles);
+
+        // 반짝임 효과
+        particleMaterial.size = Math.abs(Math.sin(Date.now() * 0.001)) * 0.1 + 0.05;
+
+        const positions = particles.geometry.attributes.position.array;
+        for (let i = 0; i < particleCount; i++) {
+        positions[i * 3 + 1] += Math.sin(Date.now() * 0.001 + i) * 0.01; // Y축 이동
+        positions[i * 3] += (Math.random() - 0.5) * 0.02; // X축 랜덤 이동
+        positions[i * 3 + 2] += (Math.random() - 0.5) * 0.02; // Z축 랜덤 이동
+        }
+        particles.geometry.attributes.position.needsUpdate = true; // 위치 업데이트
+
+        renderer.render(scene, camera);
+    }
     
-    // 6. 꽃 모델 로드 및 최초 렌더링
+    // 6. 편지 모델 로드 및 최초 렌더링
     function loadLetterModel() {
         loader = new GLTFLoader();
         loader.load("letter_1/scene.gltf", (gltf) => {
@@ -235,9 +356,8 @@ import { OrbitControls } from 'OrbitControls';
             if (intersects.length > 0) {
                 const clickedObject = intersects[0].object;
     
-                console.log(clickedObject);
-                // 클릭된 객체가 모델이면 애니메이션 실행
-                if(isAnimation == false){
+                // 클릭된 객체가 우체통이고 애니메이션이 실행된적이 없다며 애니메이션 실행
+                if(isAnimation == false && clickedObject.userData.name == "Box002_01 - Default_0"){
                     isAnimation = true;
                     if (mixer) {
                         mixer.stopAllAction(); // 이전 애니메이션 정지
@@ -289,9 +409,11 @@ import { OrbitControls } from 'OrbitControls';
         initCamera();
         initRenderer();
         initLights();
+        loadGround();
         loadPostBoxModel();
-        loadFlowerModel();
+        // loadFlowerModel();
         loadLetterModel();
+        loadPointsMaterial();
         setupResizeHandler();
         setupClickHandler();
         setOrbitControls();
@@ -309,9 +431,11 @@ import { OrbitControls } from 'OrbitControls';
           } 
           // Step 2: Rotate cube 180 degrees
           else if (!rotateCompleted) {
-            latter.rotation.z += Math.PI / 90; // Rotate 2 degrees per frame
-            if (latter.rotation.z >= THREE.MathUtils.degToRad(270)) {
-                latter.rotation.z = THREE.MathUtils.degToRad(270); // Ensure exact rotation
+            latter.rotation.z -= Math.PI / 90; // Rotate 2 degrees per frame
+            latter.rotation.y += Math.PI / 180; // Rotate 2 degrees per frame
+
+            if (latter.rotation.z <= THREE.MathUtils.degToRad(-90)) {
+                latter.rotation.z = THREE.MathUtils.degToRad(-90); // Ensure exact rotation
                 rotateCompleted = true;
                 moveCamera = true;
             }

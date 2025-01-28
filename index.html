@@ -121,6 +121,7 @@
   <div class="modal-content" id="contentModelContent">
     <span id="closeContentModal" class="close">&times;</span>
     <h2 id="messageTitle">Title</h2>
+    <p id="messageRecipient">Recipient</p>
     <p id="messageContent">content</p>
     <div>
       <button onclick="window.location.href = window.location.origin + window.location.pathname;">나도 새해인사 보내기</button>
@@ -133,6 +134,7 @@
   <div class="modal-content" id="inputModelContent">
     <span id="closeInputModal" class="close">&times;</span>
     <input type="text" placeholder="제목" id="inputTitle"/>
+    <input type="text" placeholder="수신자" id="inputTo"/>
     <textarea id="inputContent"></textarea>
     <div>
       <button onclick="copy()">새해인사 공유하기</button>
@@ -145,12 +147,31 @@
       // 현재 페이지의 기본 URL 가져오기
   let url = window.location.origin + window.location.pathname;
 
+  if($("#inputTitle").val() ==  null || $("#inputTitle").val() == undefined || $("#inputTitle").val() == ""){
+      alert("제목을 입력해주세요");
+      document.getElementById("inputTitle").focus();
+      return;
+  }
+
+  if($("#inputTo").val() ==  null || $("#inputTo").val() == undefined || $("#inputTo").val() == ""){
+      alert("수신자를 입력해주세요");
+      document.getElementById("inputTo").focus();
+      return;
+  }
+
+  if($("#inputContent").val() ==  null || $("#inputContent").val() == undefined || $("#inputContent").val() == ""){
+      alert("내용이 비어 있습니다. 내용을 입력해주세요");
+      document.getElementById("inputContent").focus();
+      return;
+  }
+
   // 제목과 내용을 가져오기
   const title = encodeURIComponent($("#inputTitle").val()); // URL 인코딩
+  const recipient = encodeURIComponent($("#inputTo").val()); // URL 인코딩
   const content = encodeURIComponent($("#inputContent").val()); // URL 인코딩
 
   // URL에 쿼리 파라미터 추가
-  url += `?title=${title}&content=${content}`;
+  url += `?title=${title}&recipient=${recipient}&content=${content}`;
 
   // 클립보드에 복사
   navigator.clipboard.writeText(url)
