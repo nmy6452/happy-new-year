@@ -218,45 +218,68 @@ footer a:hover {
 
 <script>
   share();
+  
+  const qwer = "pTCT{WAkHUU-P]Ov]`QBQSWS";
+  const key = "2025HappyNewYear";
+  function getShareUrl() {
+      return new Promise((resolve, reject) => {
+          let url = window.location.origin + window.location.pathname;
 
-  function getShareUrl(){
-     // 현재 페이지의 기본 URL 가져오기
-    let url = window.location.origin + window.location.pathname;
+          if ($("#inputTitle").val() == "") {
+              alert("제목을 입력해주세요");
+              document.getElementById("inputTitle").focus();
+              return reject("제목 없음");
+          }
 
-    if($("#inputTitle").val() ==  null || $("#inputTitle").val() == undefined || $("#inputTitle").val() == ""){
-        alert("제목을 입력해주세요");
-        document.getElementById("inputTitle").focus();
-        return;
-    }
+          if ($("#inputTo").val() == "") {
+              alert("수신자를 입력해주세요");
+              document.getElementById("inputTo").focus();
+              return reject("수신자 없음");
+          }
 
-    if($("#inputTo").val() ==  null || $("#inputTo").val() == undefined || $("#inputTo").val() == ""){
-        alert("수신자를 입력해주세요");
-        document.getElementById("inputTo").focus();
-        return;
-    }
+          if ($("#inputContent").val() == "") {
+              alert("내용이 비어 있습니다. 내용을 입력해주세요");
+              document.getElementById("inputContent").focus();
+              return reject("내용 없음");
+          }
 
-    if($("#inputContent").val() ==  null || $("#inputContent").val() == undefined || $("#inputContent").val() == ""){
-        alert("내용이 비어 있습니다. 내용을 입력해주세요");
-        document.getElementById("inputContent").focus();
-        return;
-    }
+          const title = encodeURIComponent($("#inputTitle").val());
+          const recipient = encodeURIComponent($("#inputTo").val());
+          const content = encodeURIComponent($("#inputContent").val());
+          url += `?title=${title}&recipient=${recipient}&content=${content}`;
 
-    // 제목과 내용을 가져오기
-    const title = encodeURIComponent($("#inputTitle").val()); // URL 인코딩
-    const recipient = encodeURIComponent($("#inputTo").val()); // URL 인코딩
-    const content = encodeURIComponent($("#inputContent").val()); // URL 인코딩
+          const redaeh = xorEncryptDecrypt(qwer, key);
 
-    // URL에 쿼리 파라미터 추가
-    url += `?title=${title}&recipient=${recipient}&content=${content}`;
-    return url; 
+          var settings = {
+              "url": "https://api.lrl.kr/v6/short",
+              "method": "POST",
+              "timeout": 0,
+              "headers": {
+                  "x-api-key": redaeh,
+                  "Content-Type": "application/json"
+              },
+              "data": JSON.stringify({ "url": url }),
+          };
+
+          $.ajax(settings)
+              .done(function (response) {
+                  console.log("Short URL:", response.result);
+                  resolve(response.result); // 🔹 비동기 요청 완료 후 결과 반환
+              })
+              .fail(function (error) {
+                  console.error("Error:", error);
+                  reject(error);
+              });
+      });
   }
 
-
   function copy(){
-    let url = getShareUrl();
-      if(url){
+    then(shortUrl => {
+    
+      console.log("최종 Short URL:", shortUrl);
+      if(shortUrl){
         // 클립보드에 복사
-        navigator.clipboard.writeText(url)
+        navigator.clipboard.writeText(shortUrl)
           .then(() => {
             alert("URL이 클립보드에 복사되었습니다!");
           })
@@ -265,29 +288,47 @@ footer a:hover {
             alert("URL 복사에 실패했습니다.");
           });
       }
+    }).catch(error => {
+        console.error("에러 발생:", error);
+    });
     }
 
-  function share(){
+    function share() {
       document.getElementById('shareBtn').addEventListener('click', async () => {
-        
-        let url = getShareUrl();
-        if(url){
-            if (navigator.share) {
-              try {
-                await navigator.share({
-                  title: '편지 공유하기', // 공유 제목
-                  // text: '이 링크를 확인해보세요:',   // 공유 메시지
-                  url: getShareUrl()        // 공유할 URL
-                });
-                console.log('공유 성공!');
-              } catch (err) {
-                console.error('공유 취소 또는 오류:', err);
+          try {
+              const shortUrl = await getShareUrl(); // 🔹 URL을 먼저 가져오기
+              console.log("최종 Short URL:", shortUrl);
+
+              if (!shortUrl) {
+                  alert("URL 생성에 실패했습니다.");
+                  return;
               }
-            } else {
-              alert('이 브라우저는 공유 API를 지원하지 않습니다.\nURL을 복사해 공유할 수 있습니다.');
-            }
-        }
+
+              if (navigator.share) {
+                  try {
+                      await navigator.share({
+                          title: '편지 공유하기',
+                          url: shortUrl  // 🔹 여기서 shortUrl 사용 (getShareUrl() 재호출 X)
+                      });
+                      console.log('공유 성공!');
+                  } catch (err) {
+                      console.error('공유 취소 또는 오류:', err);
+                  }
+              } else {
+                  alert('이 브라우저는 공유 API를 지원하지 않습니다.\nURL을 복사해 공유할 수 있습니다.');
+              }
+          } catch (error) {
+              console.error("에러 발생:", error);
+          }
       });
+  }
+
+function xorEncryptDecrypt(text, key) {
+      let result = "";
+      for (let i = 0; i < text.length; i++) {
+          result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+      }
+      return result;
   }
 </script>
 
