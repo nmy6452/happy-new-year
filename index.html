@@ -263,7 +263,6 @@ footer a:hover {
 
           $.ajax(settings)
               .done(function (response) {
-                  console.log("Short URL:", response.result);
                   resolve(response.result); // 🔹 비동기 요청 완료 후 결과 반환
               })
               .fail(function (error) {
@@ -275,8 +274,6 @@ footer a:hover {
 
   function copy(){
     then(shortUrl => {
-    
-      console.log("최종 Short URL:", shortUrl);
       if(shortUrl){
         // 클립보드에 복사
         navigator.clipboard.writeText(shortUrl)
@@ -297,7 +294,6 @@ footer a:hover {
       document.getElementById('shareBtn').addEventListener('click', async () => {
           try {
               const shortUrl = await getShareUrl(); // 🔹 URL을 먼저 가져오기
-              console.log("최종 Short URL:", shortUrl);
 
               if (!shortUrl) {
                   alert("URL 생성에 실패했습니다.");
