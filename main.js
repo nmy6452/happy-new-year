@@ -514,13 +514,13 @@ function createCircleTexture() {
 
             // Step 1: Move cube along x-axis
             if (moveZ < 0.5) {
-                latter.position.z += 0.005; // Move 0.05 units per frame
-                moveZ += 0.005;
+                latter.position.z += 0.02; // Move 0.05 units per frame
+                moveZ += 0.02;
             } 
             // Step 2: Rotate cube 180 degrees
             else if (!rotateCompleted) {
-                latter.rotation.z -= Math.PI / 90; // Rotate 2 degrees per frame
-                latter.rotation.y += Math.PI / 180; // Rotate 2 degrees per frame
+                latter.rotation.z -= Math.PI / 45; // Rotate 2 degrees per frame
+                latter.rotation.y += Math.PI / 90; // Rotate 2 degrees per frame
 
                 if (latter.rotation.z <= THREE.MathUtils.degToRad(-90)) {
                     latter.rotation.z = THREE.MathUtils.degToRad(-90); // Ensure exact rotation
