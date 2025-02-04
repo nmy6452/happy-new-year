@@ -273,7 +273,8 @@ footer a:hover {
   }
 
   function copy(){
-    then(shortUrl => {
+    getShareUrl()
+      .then(shortUrl => {
       if(shortUrl){
         // 클립보드에 복사
         navigator.clipboard.writeText(shortUrl)
